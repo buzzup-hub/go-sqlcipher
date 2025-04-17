@@ -87,6 +87,49 @@ static const uint16_t mbedtls_byte_order_detector = { 0x100 };
 #define MBEDTLS_BSWAP32 __rev
 #endif
 
+/*
+ * Where compiler built-ins are not present, fall back to C code that the
+ * compiler may be able to detect and transform into the relevant bswap or
+ * similar instruction.
+ */
+#if !defined(MBEDTLS_BSWAP16)
+static inline uint16_t mbedtls_bswap16(uint16_t x)
+{
+    return
+        (x & 0x00ff) << 8 |
+        (x & 0xff00) >> 8;
+}
+#define MBEDTLS_BSWAP16 mbedtls_bswap16
+#endif /* !defined(MBEDTLS_BSWAP16) */
+
+#if !defined(MBEDTLS_BSWAP32)
+static inline uint32_t mbedtls_bswap32(uint32_t x)
+{
+    return
+        (x & 0x000000ff) << 24 |
+        (x & 0x0000ff00) <<  8 |
+        (x & 0x00ff0000) >>  8 |
+        (x & 0xff000000) >> 24;
+}
+#define MBEDTLS_BSWAP32 mbedtls_bswap32
+#endif /* !defined(MBEDTLS_BSWAP32) */
+
+#if !defined(MBEDTLS_BSWAP64)
+static inline uint64_t mbedtls_bswap64(uint64_t x)
+{
+    return
+        (x & 0x00000000000000ffULL) << 56 |
+        (x & 0x000000000000ff00ULL) << 40 |
+        (x & 0x0000000000ff0000ULL) << 24 |
+        (x & 0x00000000ff000000ULL) <<  8 |
+        (x & 0x000000ff00000000ULL) >>  8 |
+        (x & 0x0000ff0000000000ULL) >> 24 |
+        (x & 0x00ff000000000000ULL) >> 40 |
+        (x & 0xff00000000000000ULL) >> 56;
+}
+#define MBEDTLS_BSWAP64 mbedtls_bswap64
+#endif /* !defined(MBEDTLS_BSWAP64) */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
